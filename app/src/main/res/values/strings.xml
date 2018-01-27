@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">GallerySearcher</string>
+    <string name="gallery_button_text">Gallery</string>
 </resources>

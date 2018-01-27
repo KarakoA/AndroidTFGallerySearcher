@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="margin_activity_left">16dp</dimen>
+    <dimen name="margin_activity_right">16dp</dimen>
+    <dimen name="margin_activity_bottom">16dp</dimen>
+    <dimen name="margin_activity_top">40dp</dimen>
+</resources>
