@@ -8,7 +8,7 @@
     android:layout_marginEnd="@dimen/margin_activity_right"
     android:layout_marginStart="@dimen/margin_activity_left"
     android:layout_marginTop="@dimen/margin_activity_top"
-    tools:context="de.htw_berlin.f4.ml.gallerysearcher.MainActivity">
+    tools:context="de.htw_berlin.f4.ml.gallerysearcher.activities.MainActivity">
 
     <Button
         android:id="@+id/button"
