@@ -30,13 +30,16 @@
             android:orientation="horizontal"
             tools:ignore="UselessParent">
             <!--Later can place top labels here-->
-            <Button
-                android:id="@+id/dummy_button"
-                style="?metaButtonBarButtonStyle"
+            <TextView
+                android:id="@+id/textView"
+                android:background="@color/colorPrimaryDark"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="100dp"
                 android:layout_weight="1"
-                android:text="@string/dummy_button" />
+                android:text=""
+                android:layout_gravity="center"
+                android:textSize="32dp"
+                android:textColor="@color/white"/>
 
         </LinearLayout>
     </FrameLayout>

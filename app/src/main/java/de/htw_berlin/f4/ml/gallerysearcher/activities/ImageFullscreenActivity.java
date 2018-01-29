@@ -1,20 +1,22 @@
 package de.htw_berlin.f4.ml.gallerysearcher.activities;
 
-import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.os.Handler;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
 
 import de.htw_berlin.f4.ml.gallerysearcher.R;
+import de.htw_berlin.f4.ml.gallerysearcher.classifier.Classifier;
+import de.htw_berlin.f4.ml.gallerysearcher.classifier.ImageClassifierWithCaching;
+import de.htw_berlin.f4.ml.gallerysearcher.services.ThumbnailsService;
 
 /**
  * A full-screen activity that hides the system UI (i.e.
@@ -37,10 +39,20 @@ public class ImageFullscreenActivity extends AppCompatActivity {
 
         //get the image id from the intent
         String imageId = getIntent().getStringExtra(MediaStore.Images.Thumbnails.IMAGE_ID);
+        Bitmap bitmapMini = ThumbnailsService.getInstance(getContentResolver()).getBitmapForImageId(Integer.parseInt(imageId), MediaStore.Images.Thumbnails.MINI_KIND);
+        List<Classifier.Recognition> recognitionList = ImageClassifierWithCaching.getInstance(getAssets()).recognizeImage(bitmapMini);
+        StringBuilder stringBuilder = new StringBuilder();
+        for (Classifier.Recognition recognition : recognitionList) {
+            stringBuilder.append(String.format(Locale.ENGLISH, "%s (%.1f%%) ", recognition.getTitle(), recognition.getConfidence() * 100.0f));
+        }
+
+        String recognizedLabels = stringBuilder.toString();
         try {
             //set its source
             Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, imageId));
             ((ImageView) mContentView).setImageBitmap(bitmap);
+            TextView textView = mControlsView.findViewById(R.id.textView);
+            textView.setText(recognizedLabels);
         } catch (IOException e) {
             //do nothing
         }

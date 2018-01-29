@@ -34,8 +34,7 @@ import java.util.PriorityQueue;
 public class TensorFlowImageClassifier implements Classifier {
 
     private static final String MODEL_FILE = "file:///android_asset/tensorflow_inception_graph.pb";
-    private static final String LABEL_FILE =
-            "file:///android_asset/imagenet_comp_graph_label_strings.txt";
+    private static final String LABEL_FILE = "file:///android_asset/imagenet_comp_graph_label_strings.txt";
     private static final int INPUT_SIZE = 224;
     private static final int IMAGE_MEAN = 117;
     private static final float IMAGE_STD = 1;
@@ -55,8 +54,9 @@ public class TensorFlowImageClassifier implements Classifier {
 
     // Pre-allocated buffers.
     private ArrayList<String> labels = new ArrayList<String>();
-    private float[] outputs;
     private String[] outputNames;
+
+    private int numClasses;
 
     private TensorFlowInferenceInterface inferenceInterface;
 
@@ -69,7 +69,7 @@ public class TensorFlowImageClassifier implements Classifier {
     /**
      * Gets or creates a classifier with the default parameters.
      */
-    public static Classifier getOrCreate(AssetManager assetManager) {
+    public static Classifier getInstance(AssetManager assetManager) {
         synchronized (Classifier.class) {
             if (sInstance == null)
                 try {
@@ -109,16 +109,14 @@ public class TensorFlowImageClassifier implements Classifier {
 
         // The shape of the output is [N, NUM_CLASSES], where N is the batch size.
         final Operation operation = classifier.inferenceInterface.graphOperation(outputName);
-        final int numClasses = (int) operation.output(0).shape().size(1);
-        System.out.println("Read " + classifier.labels.size() + " labels, output layer size is " + numClasses);
+        classifier.numClasses = (int) operation.output(0).shape().size(1);
+        System.out.println("Read " + classifier.labels.size() + " labels, output layer size is " + classifier.numClasses);
 
         classifier.inputSize = inputSize;
         classifier.imageMean = imageMean;
         classifier.imageStd = imageStd;
 
         classifier.outputNames = new String[]{outputName};
-        classifier.outputs = new float[numClasses];
-
         return classifier;
     }
 
@@ -168,26 +166,28 @@ public class TensorFlowImageClassifier implements Classifier {
 
     @Override
     public List<Recognition> recognizeImage(Bitmap bitmap) {
+        synchronized (TensorFlowImageClassifier.class) {
+            //scale to inputSize x inputSize
+            bitmap = Bitmap.createScaledBitmap(bitmap, inputSize, inputSize, true);
+            //normalize with mean - imageMean and variance imageStd
+            float[] floatValues = normalizeDataAndWriteToBuffer(bitmap);
 
-        //scale to inputSize x inputSize
-        bitmap = Bitmap.createScaledBitmap(bitmap, inputSize, inputSize, true);
-        //normalize with mean - imageMean and variance imageStd
-        float[] floatValues = normalizeDataAndWriteToBuffer(bitmap);
+            // Copy the input data into TensorFlow.
+            inferenceInterface.feed(inputName, floatValues, 1, inputSize, inputSize, 3);
 
-        // Copy the input data into TensorFlow.
-        inferenceInterface.feed(inputName, floatValues, 1, inputSize, inputSize, 3);
+            // Run the data through the model
+            inferenceInterface.run(outputNames);
 
-        // Run the data through the model
-        inferenceInterface.run(outputNames);
+            // Copy the output Tensor back into the output array.
+            float[] outputs = new float[numClasses];
+            inferenceInterface.fetch(outputName, outputs);
 
-        // Copy the output Tensor back into the output array.
-        inferenceInterface.fetch(outputName, outputs);
-
-        ArrayList<Recognition> recognitions = getTopResultsByConfidence();
-        return recognitions;
+            ArrayList<Recognition> recognitions = getTopResultsByConfidence(outputs);
+            return recognitions;
+        }
     }
 
-    private ArrayList<Recognition> getTopResultsByConfidence() {
+    private ArrayList<Recognition> getTopResultsByConfidence(float[] outputs) {
         // Find the best classifications.
         PriorityQueue<Recognition> pq = new PriorityQueue<Recognition>(3, Recognition.reverseConfidenceComparator);
 
