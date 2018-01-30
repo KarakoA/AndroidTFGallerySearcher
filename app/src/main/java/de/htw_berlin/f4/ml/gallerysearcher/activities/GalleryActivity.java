@@ -1,9 +1,11 @@
 package de.htw_berlin.f4.ml.gallerysearcher.activities;
 
 
+import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -25,7 +27,7 @@ public class GalleryActivity extends AppCompatActivity implements Callback<Integ
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gallery);
 
-        GridLayoutManager layoutManager = new GridLayoutManager(getBaseContext(), 3);
+        GridLayoutManager layoutManager = new GridLayoutManager(getBaseContext(), 2);
 
         RecyclerView recyclerView = findViewById(R.id.contentView);
         recyclerView.setLayoutManager(layoutManager);

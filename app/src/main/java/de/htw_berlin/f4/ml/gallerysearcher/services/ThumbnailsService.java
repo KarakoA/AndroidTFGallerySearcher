@@ -28,7 +28,8 @@ public class ThumbnailsService {
     public ThumbnailsService(ContentResolver resolver) {
         //get a cursor for all mini thumbnails. The mini thumbnails have the size 512 x 384
         thumbnailsCursor = MediaStore.Images.Thumbnails.queryMiniThumbnails(resolver, MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI, MediaStore.Images.Thumbnails.MINI_KIND, null);
-        this.resolver = resolver;
+
+       this.resolver = resolver;
     }
 
     /**

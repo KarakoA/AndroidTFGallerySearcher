@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimary"
+    android:background="@color/black_overlay"
     tools:context="de.htw_berlin.f4.ml.gallerysearcher.activities.ImageFullscreenActivity">
 
     <!-- The primary full-screen view-->
@@ -34,11 +34,13 @@
                 android:id="@+id/textView"
                 android:background="@color/colorPrimaryDark"
                 android:layout_width="0dp"
-                android:layout_height="100dp"
+                android:layout_height="150dp"
                 android:layout_weight="1"
+                android:padding="4dp"
+                android:layout_margin="8dp"
                 android:text=""
                 android:layout_gravity="center"
-                android:textSize="32dp"
+                android:textSize="24dp"
                 android:textColor="@color/white"/>
 
         </LinearLayout>
